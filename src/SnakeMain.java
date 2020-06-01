@@ -1,5 +1,5 @@
 public class SnakeMain {
-//    public static void main(String args[]) {
-//        new Game();
-//    }
+    public static void main(String args[]) {
+        new Game(new SnakeWindowProperties());
+    }
 }
