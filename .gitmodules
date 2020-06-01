@@ -1,3 +1,6 @@
 [submodule "shared_externals/game_kit"]
 	path = shared_externals/game_kit
 	url = https://github.com/dario4dev/game_kit.git
+[submodule "shared_external/game_kit"]
+	path = shared_external/game_kit
+	url = https://github.com/dario4dev/game_kit.git
