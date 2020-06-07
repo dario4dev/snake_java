@@ -1,12 +1,9 @@
-import engine.Engine;
-import engine.systems.GameObjectHandlerSystem;
+import engine.EngineInitialiser;
 
 public class SnakeMain {
     public static void main(String args[]) {
         //Initialise Engine
-        Engine.Get();
-        //Initialise Engine Systems
-        Engine.Get().AddSystem(new GameObjectHandlerSystem());
+        EngineInitialiser.Init();
 
         //Initialise game
         SnakeGame snakeGame = new SnakeGame(new SnakeWindowProperties());

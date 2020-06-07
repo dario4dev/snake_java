@@ -16,7 +16,6 @@ public class SnakeGame extends Game {
 
     @Override
     public void InitialiseComponents() {
-
     }
 
     @Override
