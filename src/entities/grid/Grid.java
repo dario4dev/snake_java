@@ -1,10 +1,8 @@
 package entities.grid;
 
-import engine.GameObject;
+import Common.ScreenCoordinates;
 
-import java.awt.*;
-
-public class Grid extends GameObject {
+public class Grid {
 
     private Cell[] mCells = null;
     private int mRows;
@@ -19,17 +17,12 @@ public class Grid extends GameObject {
         for(int y = 0; y < mRows; ++y) {
             for(int x = 0; x < mColumns; ++x) {
                 final int linearIndex = GridUtil.GetLinearIndex(y,x,rows, columns);
-                mCells[linearIndex] = new Cell(new CellScreenCoordinates(x*mCellSize.GetWidth(), y*mCellSize.GetHeight()), mCellSize);
+                mCells[linearIndex] = new Cell(new ScreenCoordinates(x*mCellSize.GetWidth(), y*mCellSize.GetHeight()), mCellSize);
             }
         }
     }
 
-
-    @Override
-    protected void update(double v) {
-    }
-
-    @Override
-    protected void render(Graphics graphics) {
+    public CellSize GetCellSize(){
+        return mCellSize;
     }
 }

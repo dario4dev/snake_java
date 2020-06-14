@@ -1,6 +1,10 @@
 import entities.grid.Grid;
+import entities.snake.SnakeEntity;
 
 public class SnakeGame extends Game {
+
+    private Grid mGrid;
+    private SnakeEntity mSnake;
 
     public SnakeGame(IGameWindowProperties windowProperties) {
         super(windowProperties);
@@ -18,7 +22,8 @@ public class SnakeGame extends Game {
 
     @Override
     public void InitialiseComponents() {
-        new Grid(5,5, GetScreenScreenWidth(), GetScreenScreenHeight());
+        mGrid = new Grid(15,15, GetScreenScreenWidth(), GetScreenScreenHeight());
+        mSnake = new SnakeEntity(mGrid.GetCellSize());
     }
 
     @Override

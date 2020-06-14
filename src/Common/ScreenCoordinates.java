@@ -1,16 +1,16 @@
-package entities.grid;
+package Common;
 
-public class CellScreenCoordinates {
+public class ScreenCoordinates {
 
     private int mScreenX;
     private int mScreenY;
 
-    public CellScreenCoordinates(final int screenX, final int screenY) {
+    public ScreenCoordinates(final int screenX, final int screenY) {
         mScreenX = screenX;
         mScreenY = screenY;
     }
 
-    public CellScreenCoordinates() {
+    public ScreenCoordinates() {
         this(0,0);
     }
 
