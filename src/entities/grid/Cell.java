@@ -13,20 +13,19 @@ public class Cell extends GameObject {
     }
 
     public Cell(final ScreenCoordinates coordinates, final CellSize size) {
-        GetTransform().setPosition(coordinates.GetScreenX(), coordinates.GetScreenY());
-        GetTransform().setScale((double)size.GetWidth(), (double)size.GetHeight());
+        GetTransform().SetPosition(coordinates.GetScreenX(), coordinates.GetScreenY());
+        GetTransform().SetScale((double)size.GetWidth(), (double)size.GetHeight());
 
         mContentType = CellContentType.EMPTY;
     }
 
     @Override
-    protected void update(double v) {
+    protected void Update(double v) {
 
     }
 
     @Override
-    protected void render(Graphics graphics) {
-       // graphics.fillRect(mCoordinates.GetScreenX(),mCoordinates.GetScreenY(),mSize.GetWidth(),mSize.GetHeight());
-        graphics.drawRect(GetTransform().getPositionX().intValue(),GetTransform().getPositionY().intValue(), GetTransform().getScaleX().intValue(), GetTransform().getScaleY().intValue());
+    protected void Render(Graphics graphics) {
+        graphics.drawRect(GetTransform().GetPositionX().intValue(),GetTransform().GetPositionY().intValue(), GetTransform().GetScaleX().intValue(), GetTransform().GetScaleY().intValue());
     }
 }
