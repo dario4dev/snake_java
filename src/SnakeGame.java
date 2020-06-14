@@ -1,3 +1,5 @@
+import entities.grid.Grid;
+
 public class SnakeGame extends Game {
 
     public SnakeGame(IGameWindowProperties windowProperties) {
@@ -16,6 +18,7 @@ public class SnakeGame extends Game {
 
     @Override
     public void InitialiseComponents() {
+        new Grid(5,5, 800, 600);
     }
 
     @Override
