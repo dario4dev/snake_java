@@ -18,7 +18,7 @@ public class SnakeGame extends Game {
 
     @Override
     public void InitialiseComponents() {
-        new Grid(5,5, 800, 600);
+        new Grid(5,5, GetScreenScreenWidth(), GetScreenScreenHeight());
     }
 
     @Override
