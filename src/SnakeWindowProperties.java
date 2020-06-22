@@ -17,6 +17,6 @@ public class SnakeWindowProperties implements IGameWindowProperties {
 
     @Override
     public String getTitle() {
-        return "Snake"; 
+        return "Snake";
     }
 }
