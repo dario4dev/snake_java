@@ -13,13 +13,13 @@ public class SnakeEntity extends GameObject implements InputListener {
 
     public SnakeEntity(CellSize cellSize) {
         getTransform().setScale((double)cellSize.getWidth(), (double)cellSize.getHeight());
-        InputSystem inputSystem = Engine.Get().getSystem(InputSystem.getSystemId());
+        InputSystem inputSystem = Engine.get().getSystem(InputSystem.getSystemId());
         inputSystem.addListener(this, KeyEvent.VK_A);
         inputSystem.addListener(this, KeyEvent.VK_D);
     }
 
     public void finalised() {
-        InputSystem inputSystem = Engine.Get().getSystem(InputSystem.getSystemId());
+        InputSystem inputSystem = Engine.get().getSystem(InputSystem.getSystemId());
         inputSystem.removeListenerFromAllEvents(this);
 
     }
