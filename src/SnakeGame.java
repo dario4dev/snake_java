@@ -3,31 +3,31 @@ import entities.snake.SnakeEntity;
 
 public class SnakeGame extends Game {
 
-    private Grid mGrid;
-    private SnakeEntity mSnake;
+    private Grid grid;
+    private SnakeEntity snake;
 
     public SnakeGame(IGameWindowProperties windowProperties) {
         super(windowProperties);
     }
 
     @Override
-    public void InitialiseSystems() {
+    public void initialiseSystems() {
 
     }
 
     @Override
-    public void DeinitialiseSystems() {
+    public void deInitialiseSystems() {
 
     }
 
     @Override
-    public void InitialiseComponents() {
-        mGrid = new Grid(15,15, GetScreenScreenWidth(), GetScreenScreenHeight());
-        mSnake = new SnakeEntity(mGrid.GetCellSize());
+    public void initialiseComponents() {
+        grid = new Grid(15,15, getScreenScreenWidth(), getScreenScreenHeight());
+        snake = new SnakeEntity(grid.getCellSize());
     }
 
     @Override
-    public void DeinitialiseComponents() {
+    public void deInitialiseComponents() {
 
     }
 }

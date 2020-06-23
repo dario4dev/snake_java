@@ -2,32 +2,32 @@ package Common;
 
 public class ScreenCoordinates {
 
-    private int mScreenX;
-    private int mScreenY;
+    private int screenX;
+    private int screenY;
 
     public ScreenCoordinates(final int screenX, final int screenY) {
-        mScreenX = screenX;
-        mScreenY = screenY;
+        this.screenX = screenX;
+        this.screenY = screenY;
     }
 
     public ScreenCoordinates() {
         this(0,0);
     }
 
-    public int GetScreenX() {
-        return mScreenX;
+    public int getScreenX() {
+        return screenX;
     }
 
-    public int GetScreenY() {
-        return mScreenY;
+    public int getScreenY() {
+        return screenY;
     }
 
-    public void SetScreenX(final int value) {
-        mScreenX = value;
+    public void setScreenX(final int value) {
+        screenX = value;
     }
 
-    public void SetScreenY(final int value) {
-        mScreenY = value;
+    public void setScreenY(final int value) {
+        screenY = value;
     }
 
 

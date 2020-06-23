@@ -12,40 +12,40 @@ import java.awt.event.KeyEvent;
 public class SnakeEntity extends GameObject implements InputListener {
 
     public SnakeEntity(CellSize cellSize) {
-        GetTransform().SetScale((double)cellSize.GetWidth(), (double)cellSize.GetHeight());
-        InputSystem inputSystem = Engine.Get().GetSystem(InputSystem.GetSystemId());
-        inputSystem.AddListener(this, KeyEvent.VK_A);
-        inputSystem.AddListener(this, KeyEvent.VK_D);
+        getTransform().setScale((double)cellSize.getWidth(), (double)cellSize.getHeight());
+        InputSystem inputSystem = Engine.Get().getSystem(InputSystem.getSystemId());
+        inputSystem.addListener(this, KeyEvent.VK_A);
+        inputSystem.addListener(this, KeyEvent.VK_D);
     }
 
     public void finalised() {
-        InputSystem inputSystem = Engine.Get().GetSystem(InputSystem.GetSystemId());
-        inputSystem.RemoveListenerFromAllEvents(this);
+        InputSystem inputSystem = Engine.Get().getSystem(InputSystem.getSystemId());
+        inputSystem.removeListenerFromAllEvents(this);
 
     }
     @Override
-    protected void Update(double v) {
+    protected void update(double v) {
 
     }
 
     @Override
-    protected void Render(Graphics graphics) {
-        graphics.fillRect(GetTransform().GetPositionX().intValue(),GetTransform().GetPositionY().intValue(), GetTransform().GetScaleX().intValue(), GetTransform().GetScaleY().intValue());
-        graphics.drawRect(GetTransform().GetPositionX().intValue(),GetTransform().GetPositionY().intValue(), GetTransform().GetScaleX().intValue(), GetTransform().GetScaleY().intValue());
+    protected void render(Graphics graphics) {
+        graphics.fillRect(getTransform().getPositionX().intValue(),getTransform().getPositionY().intValue(), getTransform().getScaleX().intValue(), getTransform().getScaleY().intValue());
+        graphics.drawRect(getTransform().getPositionX().intValue(),getTransform().getPositionY().intValue(), getTransform().getScaleX().intValue(), getTransform().getScaleY().intValue());
     }
 
     @Override
-    public void KeyPressed(Integer keyEvent) {
+    public void keyPressed(Integer keyEvent) {
         if(keyEvent == KeyEvent.VK_A) {
-            GetTransform().SetPosition(-1, GetTransform().GetPositionY());
+            getTransform().setPosition(-1, getTransform().getPositionY());
         }
         if(keyEvent == KeyEvent.VK_D) {
-            GetTransform().SetPosition(1, GetTransform().GetPositionY());
+            getTransform().setPosition(1, getTransform().getPositionY());
         }
     }
 
     @Override
-    public void KeyReleased(Integer keyEvent) {
+    public void keyReleased(Integer keyEvent) {
 
     }
 }
