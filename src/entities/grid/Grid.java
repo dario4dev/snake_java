@@ -1,8 +1,11 @@
 package entities.grid;
 
 import Common.ScreenCoordinates;
+import engine.GameObject;
 
-public class Grid {
+import java.awt.*;
+
+public class Grid extends GameObject {
 
     private Cell[] cells = null;
     private int rows;
@@ -10,6 +13,7 @@ public class Grid {
     private CellSize cellSize = null;
 
     public Grid(final int rows, final int columns, final int width, final int height) {
+        this.setName(Grid.GetGameObjectName());
         this.rows = rows;
         this.columns = columns;
         cells = new Cell[rows * columns];
@@ -24,5 +28,17 @@ public class Grid {
 
     public CellSize getCellSize(){
         return cellSize;
+    }
+
+    static public String GetGameObjectName() {
+        return "Grid";
+    }
+
+    @Override
+    protected void update(double v) {
+    }
+
+    @Override
+    protected void render(Graphics graphics) {
     }
 }
