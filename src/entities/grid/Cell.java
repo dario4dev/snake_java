@@ -13,8 +13,8 @@ public class Cell extends GameObject {
     }
 
     public Cell(final ScreenCoordinates coordinates, final CellSize size) {
-        getTransform().setPosition(coordinates.getScreenX(), coordinates.getScreenY());
-        getTransform().setScale((double)size.getWidth(), (double)size.getHeight());
+        getTransform().setPosition(coordinates.getFirst(), coordinates.getSecond());
+        getTransform().setScale((double)size.getFirst(), (double)size.getSecond());
 
         contentType = CellContentType.EMPTY;
     }

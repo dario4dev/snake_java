@@ -1,37 +1,14 @@
 package Common;
 
-public class ScreenCoordinates {
+import entities.grid.Pair;
 
-    private int screenX;
-    private int screenY;
+public class ScreenCoordinates extends Pair<Integer> {
 
-    public ScreenCoordinates(final int screenX, final int screenY) {
-        this.screenX = screenX;
-        this.screenY = screenY;
+    public ScreenCoordinates(final Integer x, final Integer y) {
+        super(x, y);
     }
 
     public ScreenCoordinates() {
-        this(0,0);
+        super(0, 0);
     }
-
-    public int getScreenX() {
-        return screenX;
-    }
-
-    public int getScreenY() {
-        return screenY;
-    }
-
-    public void setScreenX(final int value) {
-        screenX = value;
-    }
-
-    public void setScreenY(final int value) {
-        screenY = value;
-    }
-
-
-
-
-
 }

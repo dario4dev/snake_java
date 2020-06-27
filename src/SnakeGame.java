@@ -1,4 +1,5 @@
 import entities.grid.Grid;
+import entities.grid.GridInfo;
 import entities.snake.SnakeEntity;
 
 public class SnakeGame extends Game {
@@ -22,7 +23,7 @@ public class SnakeGame extends Game {
 
     @Override
     public void initialiseComponents() {
-        grid = new Grid(15,15, getScreenScreenWidth(), getScreenScreenHeight());
+        grid = new Grid(new GridInfo(15, 15, getScreenScreenWidth(), getScreenScreenHeight()));
         snake = new SnakeEntity(grid.getCellSize());
     }
 

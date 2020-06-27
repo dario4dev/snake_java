@@ -1,11 +1,14 @@
 package entities.snake;
 
+import Common.ScreenCoordinates;
 import engine.Engine;
 import engine.GameObject;
 import engine.InputListener;
 import engine.systems.InputSystem;
 import entities.grid.CellSize;
 import entities.grid.Grid;
+import entities.grid.GridCoordinates;
+import entities.grid.GridUtil;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -17,7 +20,7 @@ public class SnakeEntity extends GameObject implements InputListener {
     private Grid grid = null;
 
     public SnakeEntity(CellSize cellSize) {
-        getTransform().setScale((double)cellSize.getWidth(), (double)cellSize.getHeight());
+
         InputSystem inputSystem = Engine.get().getSystem(InputSystem.getSystemId());
         inputSystem.addListener(this, KeyEvent.VK_A);
         inputSystem.addListener(this, KeyEvent.VK_D);
@@ -35,19 +38,18 @@ public class SnakeEntity extends GameObject implements InputListener {
     protected void update(double v) {
         List<Double> centerPos = getCenterPosition();
 
-        System.out.println("pos_x : " + getTransform().getPositionX().intValue() + " pos_y: " + getTransform().getPositionY().intValue());
+        //System.out.println("pos_x : " + getTransform().getPositionX().intValue() + " pos_y: " + getTransform().getPositionY().intValue());
 
-        System.out.println("getCenterPos_x : " + centerPos.get(0) + " getCenterPos_y: " + centerPos.get(1));
-
-        if(grid == null) {
-            grid = (Grid) GameObject.find(Grid.GetGameObjectName());
-        }
+        //System.out.println("getCenterPos_x : " + centerPos.get(0) + " getCenterPos_y: " + centerPos.get(1));
     }
 
     @Override
     protected void render(Graphics graphics) {
-        graphics.fillRect(getTransform().getPositionX().intValue(),getTransform().getPositionY().intValue(), getTransform().getScaleX().intValue(), getTransform().getScaleY().intValue());
-        graphics.drawRect(getTransform().getPositionX().intValue(),getTransform().getPositionY().intValue(), getTransform().getScaleX().intValue(), getTransform().getScaleY().intValue());
+        if(grid == null) {
+            grid = (Grid) GameObject.find(Grid.getGameObjectName());
+        }
+        graphics.fillRect(getTransform().getPositionX().intValue(),getTransform().getPositionY().intValue(), grid.getCellSize().getFirst(), grid.getCellSize().getSecond());
+        graphics.drawRect(getTransform().getPositionX().intValue(),getTransform().getPositionY().intValue(), grid.getCellSize().getFirst(), grid.getCellSize().getSecond());
 
         List<Double> centerPos = getCenterPosition();
 
@@ -60,19 +62,19 @@ public class SnakeEntity extends GameObject implements InputListener {
     @Override
     public void keyPressed(Integer keyEvent) {
         if(keyEvent == KeyEvent.VK_A) {
-            getTransform().setPosition(-1, 0);
+            updateMovement( new ArrayList<Double>(){ {add(getTransform().getPositionX() - grid.getCellSize().getFirst()); add(getTransform().getPositionY());}});
             return;
         }
         if(keyEvent == KeyEvent.VK_D) {
-            getTransform().setPosition(1, 0);
+            updateMovement( new ArrayList<Double>(){ {add(getTransform().getPositionX() + grid.getCellSize().getFirst()); add(getTransform().getPositionY());}});
             return;
         }
         if(keyEvent == KeyEvent.VK_W) {
-            getTransform().setPosition(0, -1);
+            updateMovement( new ArrayList<Double>(){ {add(getTransform().getPositionX()); add(getTransform().getPositionY() - grid.getCellSize().getFirst());}});
             return;
         }
         if(keyEvent == KeyEvent.VK_S) {
-            getTransform().setPosition(0, 1);
+            updateMovement( new ArrayList<Double>(){ {add(getTransform().getPositionX()); add(getTransform().getPositionY() + grid.getCellSize().getFirst());}});
             return;
         }
     }
@@ -82,7 +84,11 @@ public class SnakeEntity extends GameObject implements InputListener {
 
     }
 
-    private void UpdateMovement(List<Double> newPosition) {
+    private void updateMovement(List<Double> newPosition) {
+        GridCoordinates gridCoordinates = GridUtil.getGridCoordinateFromScreenCoordinate(new ScreenCoordinates(newPosition.get(0).intValue(), newPosition.get(1).intValue()), grid.getGridInfo());
+        if(grid.isValidGridCoordinate(gridCoordinates)) {
+            getTransform().setPosition(newPosition);
+        }
     }
 
     private List<Double> getCenterPosition() {
