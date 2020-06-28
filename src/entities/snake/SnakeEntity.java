@@ -13,20 +13,51 @@ import entities.grid.GridUtil;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SnakeEntity extends GameObject implements InputListener {
 
+    private enum MOVEMENT_DIRECTION {
+        NONE,
+        LEFT,
+        RIGHT,
+        UP,
+        DOWN
+    };
+
+    private MOVEMENT_DIRECTION currentMovementDirection;
+    private Map<MOVEMENT_DIRECTION, List<Double>> movementDirectionMap;
+    private Map<Integer, MOVEMENT_DIRECTION> keyToMovementDirectionMap;
     private Grid grid = null;
+    private final float updateMovementSeconds = 1.0f;
+    private float updateMovementTimerCounter = 0.0f;
 
     public SnakeEntity(CellSize cellSize) {
+
+        currentMovementDirection = MOVEMENT_DIRECTION.NONE;
+        movementDirectionMap = new HashMap<MOVEMENT_DIRECTION, List<Double>>() {{
+            put(MOVEMENT_DIRECTION.NONE, new ArrayList<Double>(){{add(0.0);add(0.0);}});
+            put(MOVEMENT_DIRECTION.LEFT, new ArrayList<Double>(){{add(-1.0);add(0.0);}});
+            put(MOVEMENT_DIRECTION.RIGHT, new ArrayList<Double>(){{add(1.0);add(0.0);}});
+            put(MOVEMENT_DIRECTION.UP, new ArrayList<Double>(){{add(0.0);add(-1.0);}});
+            put(MOVEMENT_DIRECTION.DOWN, new ArrayList<Double>(){{add(0.0);add(1.0);}});
+        }};
+
+        keyToMovementDirectionMap = new HashMap<Integer, MOVEMENT_DIRECTION>() {{
+            put(KeyEvent.VK_A, MOVEMENT_DIRECTION.LEFT);
+            put(KeyEvent.VK_D, MOVEMENT_DIRECTION.RIGHT);
+            put(KeyEvent.VK_W, MOVEMENT_DIRECTION.UP);
+            put(KeyEvent.VK_S, MOVEMENT_DIRECTION.DOWN);
+
+        }};
 
         InputSystem inputSystem = Engine.get().getSystem(InputSystem.getSystemId());
         inputSystem.addListener(this, KeyEvent.VK_A);
         inputSystem.addListener(this, KeyEvent.VK_D);
         inputSystem.addListener(this, KeyEvent.VK_W);
         inputSystem.addListener(this, KeyEvent.VK_S);
-
     }
 
     public void finalised() {
@@ -35,12 +66,15 @@ public class SnakeEntity extends GameObject implements InputListener {
 
     }
     @Override
-    protected void update(double v) {
-        List<Double> centerPos = getCenterPosition();
+    protected void update(double deltaTime) {
 
-        //System.out.println("pos_x : " + getTransform().getPositionX().intValue() + " pos_y: " + getTransform().getPositionY().intValue());
-
-        //System.out.println("getCenterPos_x : " + centerPos.get(0) + " getCenterPos_y: " + centerPos.get(1));
+        if(currentMovementDirection != MOVEMENT_DIRECTION.NONE) {
+            updateMovementTimerCounter += deltaTime;
+            if(updateMovementTimerCounter >= updateMovementSeconds) {
+                updateMovement(movementDirectionMap.get(currentMovementDirection));
+                updateMovementTimerCounter = 0.0f;
+            }
+        }
     }
 
     @Override
@@ -61,22 +95,13 @@ public class SnakeEntity extends GameObject implements InputListener {
 
     @Override
     public void keyPressed(Integer keyEvent) {
-        if(keyEvent == KeyEvent.VK_A) {
-            updateMovement( new ArrayList<Double>(){ {add(getTransform().getPositionX() - grid.getCellSize().getFirst()); add(getTransform().getPositionY());}});
-            return;
-        }
-        if(keyEvent == KeyEvent.VK_D) {
-            updateMovement( new ArrayList<Double>(){ {add(getTransform().getPositionX() + grid.getCellSize().getFirst()); add(getTransform().getPositionY());}});
-            return;
-        }
-        if(keyEvent == KeyEvent.VK_W) {
-            updateMovement( new ArrayList<Double>(){ {add(getTransform().getPositionX()); add(getTransform().getPositionY() - grid.getCellSize().getFirst());}});
-            return;
-        }
-        if(keyEvent == KeyEvent.VK_S) {
-            updateMovement( new ArrayList<Double>(){ {add(getTransform().getPositionX()); add(getTransform().getPositionY() + grid.getCellSize().getFirst());}});
-            return;
-        }
+
+        keyToMovementDirectionMap.computeIfPresent(keyEvent.intValue(), (key, value) -> {
+            if(isValidMovement(value)) {
+                currentMovementDirection = value;
+            }
+            return value;
+        });
     }
 
     @Override
@@ -84,7 +109,23 @@ public class SnakeEntity extends GameObject implements InputListener {
 
     }
 
-    private void updateMovement(List<Double> newPosition) {
+    private boolean isValidMovement(final MOVEMENT_DIRECTION movementDirection) {
+        if(movementDirection == currentMovementDirection) {
+            return true;
+        }
+        final List<Double> currentMovementDirectionValue = movementDirectionMap.get(currentMovementDirection);
+        final List<Double> desiredMovementDirectionValue = movementDirectionMap.get(movementDirection);
+
+        return (Math.abs(currentMovementDirectionValue.get(0)) - Math.abs(desiredMovementDirectionValue.get(0))) != 0.0
+                || (Math.abs(currentMovementDirectionValue.get(1)) - Math.abs(desiredMovementDirectionValue.get(1))) != 0.0;
+
+    }
+
+    private void updateMovement(final List<Double> newDirection) {
+        final List<Double> newPosition = new ArrayList<Double>() {{
+            add(getTransform().getPositionX() + newDirection.get(0) * grid.getCellSize().getFirst());
+            add(getTransform().getPositionY() + newDirection.get(1) * grid.getCellSize().getSecond());
+        }};
         GridCoordinates gridCoordinates = GridUtil.getGridCoordinateFromScreenCoordinate(new ScreenCoordinates(newPosition.get(0).intValue(), newPosition.get(1).intValue()), grid.getGridInfo());
         if(grid.isValidGridCoordinate(gridCoordinates)) {
             getTransform().setPosition(newPosition);
