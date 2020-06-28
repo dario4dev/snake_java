@@ -9,8 +9,9 @@ public class GridUtil {
 
     public static GridCoordinates getGridCoordinateFromScreenCoordinate(final ScreenCoordinates screenCoordinates, final GridInfo gridInfo) {
         final CellSize cellSize = new CellSize(gridInfo.getWidth()/gridInfo.getColumns(), gridInfo.getHeight()/gridInfo.getRows());
-        final int cellX = screenCoordinates.getFirst() / cellSize.getFirst();
-        final int cellY = screenCoordinates.getSecond() / cellSize.getSecond();
-        return new GridCoordinates(cellX, cellY);
+        final int row = screenCoordinates.getSecond() / cellSize.getSecond();
+        final int column = screenCoordinates.getFirst() / cellSize.getFirst();
+
+        return new GridCoordinates(row, column);
     }
 }

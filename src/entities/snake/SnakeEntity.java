@@ -2,10 +2,12 @@ package entities.snake;
 
 import Common.ScreenCoordinates;
 import engine.Engine;
-import engine.GameObject;
 import engine.InputListener;
 import engine.systems.InputSystem;
-import entities.grid.*;
+import entities.grid.CellContent;
+import entities.grid.CellContentType;
+import entities.grid.GridCoordinates;
+import entities.grid.GridUtil;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -14,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SnakeEntity extends GameObject implements InputListener {
+public class SnakeEntity extends CellContent implements InputListener {
 
     private enum MOVEMENT_DIRECTION {
         NONE,
@@ -26,14 +28,15 @@ public class SnakeEntity extends GameObject implements InputListener {
 
     private MOVEMENT_DIRECTION currentMovementDirection;
     private MOVEMENT_DIRECTION nextMovementDirection;
+    private SnakeStatus statusCallback;
 
     private Map<MOVEMENT_DIRECTION, List<Double>> movementDirectionMap;
     private Map<Integer, MOVEMENT_DIRECTION> keyToMovementDirectionMap;
-    private Grid grid = null;
     private final float updateMovementSeconds = 1.0f;
     private float updateMovementTimerCounter = 0.0f;
 
-    public SnakeEntity(CellSize cellSize) {
+    public SnakeEntity() {
+        super(CellContentType.SNAKE);
 
         currentMovementDirection = MOVEMENT_DIRECTION.NONE;
         nextMovementDirection = currentMovementDirection;
@@ -51,6 +54,11 @@ public class SnakeEntity extends GameObject implements InputListener {
             put(KeyEvent.VK_W, MOVEMENT_DIRECTION.UP);
             put(KeyEvent.VK_S, MOVEMENT_DIRECTION.DOWN);
 
+            put(KeyEvent.VK_LEFT, MOVEMENT_DIRECTION.LEFT);
+            put(KeyEvent.VK_RIGHT, MOVEMENT_DIRECTION.RIGHT);
+            put(KeyEvent.VK_UP, MOVEMENT_DIRECTION.UP);
+            put(KeyEvent.VK_DOWN, MOVEMENT_DIRECTION.DOWN);
+
         }};
 
         InputSystem inputSystem = Engine.get().getSystem(InputSystem.getSystemId());
@@ -58,6 +66,10 @@ public class SnakeEntity extends GameObject implements InputListener {
         inputSystem.addListener(this, KeyEvent.VK_D);
         inputSystem.addListener(this, KeyEvent.VK_W);
         inputSystem.addListener(this, KeyEvent.VK_S);
+        inputSystem.addListener(this, KeyEvent.VK_LEFT);
+        inputSystem.addListener(this, KeyEvent.VK_RIGHT);
+        inputSystem.addListener(this, KeyEvent.VK_UP);
+        inputSystem.addListener(this, KeyEvent.VK_DOWN);
     }
 
     public void finalised() {
@@ -69,12 +81,10 @@ public class SnakeEntity extends GameObject implements InputListener {
     protected void update(double deltaTime) {
 
         if(nextMovementDirection != MOVEMENT_DIRECTION.NONE) {
+            updateStatus(SnakeStatus.SNAKE_STATUS.MOVING);
             updateMovementTimerCounter += deltaTime;
             if(updateMovementTimerCounter >= updateMovementSeconds) {
                 GridCoordinates updatedGridCoordinate = updateMovement(movementDirectionMap.get(nextMovementDirection));
-                if(updatedGridCoordinate != null) {
-                    grid.updateStatus(CellContentType.SNAKE, updatedGridCoordinate);
-                }
                 currentMovementDirection = nextMovementDirection;
                 updateMovementTimerCounter = 0.0f;
             }
@@ -83,12 +93,8 @@ public class SnakeEntity extends GameObject implements InputListener {
 
     @Override
     protected void render(Graphics graphics) {
-        if(grid == null) {
-            grid = (Grid) GameObject.find(Grid.getGameObjectName());
-            Cell snakeCell = grid.getCellByContent(CellContentType.SNAKE);
-            getTransform().setPosition(snakeCell.getTransform().getPositionX(), snakeCell.getTransform().getPositionY());
-        }
 
+        graphics.setColor(Color.black);
         graphics.fillRect(getTransform().getPositionX().intValue(),getTransform().getPositionY().intValue(), grid.getCellSize().getFirst(), grid.getCellSize().getSecond());
         graphics.drawRect(getTransform().getPositionX().intValue(),getTransform().getPositionY().intValue(), grid.getCellSize().getFirst(), grid.getCellSize().getSecond());
 
@@ -125,7 +131,6 @@ public class SnakeEntity extends GameObject implements InputListener {
 
         return (Math.abs(currentMovementDirectionValue.get(0)) - Math.abs(desiredMovementDirectionValue.get(0))) != 0.0
                 || (Math.abs(currentMovementDirectionValue.get(1)) - Math.abs(desiredMovementDirectionValue.get(1))) != 0.0;
-
     }
 
     private GridCoordinates updateMovement(final List<Double> newDirection) {
@@ -133,11 +138,17 @@ public class SnakeEntity extends GameObject implements InputListener {
             add(getTransform().getPositionX() + newDirection.get(0) * grid.getCellSize().getFirst());
             add(getTransform().getPositionY() + newDirection.get(1) * grid.getCellSize().getSecond());
         }};
-        GridCoordinates gridCoordinates = GridUtil.getGridCoordinateFromScreenCoordinate(new ScreenCoordinates(newPosition.get(0).intValue(), newPosition.get(1).intValue()), grid.getGridInfo());
+        ScreenCoordinates newPositionScreenCoordinates = new ScreenCoordinates(newPosition.get(0).intValue(), newPosition.get(1).intValue());
+        GridCoordinates gridCoordinates = GridUtil.getGridCoordinateFromScreenCoordinate(newPositionScreenCoordinates, grid.getGridInfo());
         if(grid.isValidGridCoordinate(gridCoordinates)) {
-            getTransform().setPosition(newPosition);
+            if(grid.getCellContentTypeAt(gridCoordinates) == CellContentType.FOOD) {
+                updateStatus(SnakeStatus.SNAKE_STATUS.EATING);
+            }
+            setPositionScreenCoordinates(newPositionScreenCoordinates);
             return gridCoordinates;
         }
+
+        updateStatus(SnakeStatus.SNAKE_STATUS.DEAD);
 
         return null;
     }
@@ -151,5 +162,15 @@ public class SnakeEntity extends GameObject implements InputListener {
         final double centerY = getTransform().getPositionY() + (getTransform().getScaleY()/2.0);
 
         return new ArrayList<Double>() {{add(centerX); add(centerY);}};
+    }
+
+    public void setOnStatusUpdatedCallback(SnakeStatus statusCallback) {
+        this.statusCallback = statusCallback;
+    }
+
+    private void updateStatus(SnakeStatus.SNAKE_STATUS status) {
+        if(statusCallback != null) {
+            statusCallback.setStatus(status);
+        }
     }
 }

@@ -26,13 +26,6 @@ public class Grid extends GameObject {
                 cells[linearIndex] = new Cell(new GridCoordinates(y,x), new ScreenCoordinates(x* cellSize.getFirst(), y* cellSize.getSecond()), cellSize);
             }
         }
-
-        //Initialise snake position in the grid
-        final int snakeCellRow = this.gridInfo.getRows()/2;
-        final int snakeCellColumn = this.gridInfo.getColumns()/2;
-        final int snakeCellIndex = GridUtil.getLinearIndex(snakeCellRow,snakeCellColumn,this.gridInfo.getRows(), this.gridInfo.getColumns());
-        cellContentTypeToCellMap.put(CellContentType.SNAKE, cells[snakeCellIndex]);
-        updateStatus(CellContentType.SNAKE, new GridCoordinates(snakeCellRow, snakeCellColumn));
     }
 
     public GridInfo getGridInfo() {
@@ -52,18 +45,23 @@ public class Grid extends GameObject {
                 && gridCoordinates.getSecond() >= 0 && gridCoordinates.getSecond() < gridInfo.getRows();
     }
 
-    public void updateStatus(final CellContentType cellContentType, final GridCoordinates gridCoordinates) {
+    public void updateCellContent(final CellContentType cellContentType, final GridCoordinates gridCoordinates) {
+        cellContentTypeToCellMap.computeIfAbsent(cellContentType, (key) -> {
+            final int linearIndex = GridUtil.getLinearIndex(gridCoordinates.getFirst(),gridCoordinates.getSecond(),this.gridInfo.getRows(), this.gridInfo.getColumns());
+            return cellContentTypeToCellMap.put(key, cells[linearIndex]);
+        });
+
         cellContentTypeToCellMap.computeIfPresent(cellContentType, (key, value) -> {
-//            System.out.println("Start Updating content ");
-//            System.out.println("Current content type " + cellContentType + " to cell " + value);
+            //System.out.println("Start Updating content ");
+            //System.out.println("Current content type " + cellContentType + " to cell " + value);
             value.setContentType(CellContentType.EMPTY);
             //System.out.println("New content type " + cellContentType + " to cell " + value);
             final int linearIndex = GridUtil.getLinearIndex(gridCoordinates.getFirst(),gridCoordinates.getSecond(),this.gridInfo.getRows(), this.gridInfo.getColumns());
             value = cells[linearIndex];
-         //   System.out.println("Current content type " + cellContentType + " to cell " + value);
+            //System.out.println("Current content type " + cellContentType + " to cell " + value);
             value.setContentType(cellContentType);
-          //  System.out.println("New content type " + cellContentType + " to cell " + value);
-       //     System.out.println("End Updating content ");
+            //System.out.println("New content type " + cellContentType + " to cell " + value);
+            //System.out.println("End Updating content ");
             return value;
         });
     }
@@ -72,6 +70,10 @@ public class Grid extends GameObject {
         return cellContentTypeToCellMap.get(cellContentType);
     }
 
+    public CellContentType getCellContentTypeAt(final GridCoordinates gridCoordinates) {
+        final int linearIndex = GridUtil.getLinearIndex(gridCoordinates.getFirst(),gridCoordinates.getSecond(),this.gridInfo.getRows(), this.gridInfo.getColumns());
+        return cells[linearIndex].getContentType();
+    }
     @Override
     protected void update(double v) {
     }
