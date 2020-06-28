@@ -5,10 +5,7 @@ import engine.Engine;
 import engine.GameObject;
 import engine.InputListener;
 import engine.systems.InputSystem;
-import entities.grid.CellSize;
-import entities.grid.Grid;
-import entities.grid.GridCoordinates;
-import entities.grid.GridUtil;
+import entities.grid.*;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -28,6 +25,8 @@ public class SnakeEntity extends GameObject implements InputListener {
     };
 
     private MOVEMENT_DIRECTION currentMovementDirection;
+    private MOVEMENT_DIRECTION nextMovementDirection;
+
     private Map<MOVEMENT_DIRECTION, List<Double>> movementDirectionMap;
     private Map<Integer, MOVEMENT_DIRECTION> keyToMovementDirectionMap;
     private Grid grid = null;
@@ -37,6 +36,7 @@ public class SnakeEntity extends GameObject implements InputListener {
     public SnakeEntity(CellSize cellSize) {
 
         currentMovementDirection = MOVEMENT_DIRECTION.NONE;
+        nextMovementDirection = currentMovementDirection;
         movementDirectionMap = new HashMap<MOVEMENT_DIRECTION, List<Double>>() {{
             put(MOVEMENT_DIRECTION.NONE, new ArrayList<Double>(){{add(0.0);add(0.0);}});
             put(MOVEMENT_DIRECTION.LEFT, new ArrayList<Double>(){{add(-1.0);add(0.0);}});
@@ -68,10 +68,14 @@ public class SnakeEntity extends GameObject implements InputListener {
     @Override
     protected void update(double deltaTime) {
 
-        if(currentMovementDirection != MOVEMENT_DIRECTION.NONE) {
+        if(nextMovementDirection != MOVEMENT_DIRECTION.NONE) {
             updateMovementTimerCounter += deltaTime;
             if(updateMovementTimerCounter >= updateMovementSeconds) {
-                updateMovement(movementDirectionMap.get(currentMovementDirection));
+                GridCoordinates updatedGridCoordinate = updateMovement(movementDirectionMap.get(nextMovementDirection));
+                if(updatedGridCoordinate != null) {
+                    grid.updateStatus(CellContentType.SNAKE, updatedGridCoordinate);
+                }
+                currentMovementDirection = nextMovementDirection;
                 updateMovementTimerCounter = 0.0f;
             }
         }
@@ -81,7 +85,10 @@ public class SnakeEntity extends GameObject implements InputListener {
     protected void render(Graphics graphics) {
         if(grid == null) {
             grid = (Grid) GameObject.find(Grid.getGameObjectName());
+            Cell snakeCell = grid.getCellByContent(CellContentType.SNAKE);
+            getTransform().setPosition(snakeCell.getTransform().getPositionX(), snakeCell.getTransform().getPositionY());
         }
+
         graphics.fillRect(getTransform().getPositionX().intValue(),getTransform().getPositionY().intValue(), grid.getCellSize().getFirst(), grid.getCellSize().getSecond());
         graphics.drawRect(getTransform().getPositionX().intValue(),getTransform().getPositionY().intValue(), grid.getCellSize().getFirst(), grid.getCellSize().getSecond());
 
@@ -98,7 +105,7 @@ public class SnakeEntity extends GameObject implements InputListener {
 
         keyToMovementDirectionMap.computeIfPresent(keyEvent.intValue(), (key, value) -> {
             if(isValidMovement(value)) {
-                currentMovementDirection = value;
+                nextMovementDirection = value;
             }
             return value;
         });
@@ -121,7 +128,7 @@ public class SnakeEntity extends GameObject implements InputListener {
 
     }
 
-    private void updateMovement(final List<Double> newDirection) {
+    private GridCoordinates updateMovement(final List<Double> newDirection) {
         final List<Double> newPosition = new ArrayList<Double>() {{
             add(getTransform().getPositionX() + newDirection.get(0) * grid.getCellSize().getFirst());
             add(getTransform().getPositionY() + newDirection.get(1) * grid.getCellSize().getSecond());
@@ -129,7 +136,14 @@ public class SnakeEntity extends GameObject implements InputListener {
         GridCoordinates gridCoordinates = GridUtil.getGridCoordinateFromScreenCoordinate(new ScreenCoordinates(newPosition.get(0).intValue(), newPosition.get(1).intValue()), grid.getGridInfo());
         if(grid.isValidGridCoordinate(gridCoordinates)) {
             getTransform().setPosition(newPosition);
+            return gridCoordinates;
         }
+
+        return null;
+    }
+
+    private  GridCoordinates getCurrentGridCoordinate() {
+        return GridUtil.getGridCoordinateFromScreenCoordinate(new ScreenCoordinates(getTransform().getPositionX().intValue(), getTransform().getPositionY().intValue()), grid.getGridInfo());
     }
 
     private List<Double> getCenterPosition() {
