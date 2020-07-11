@@ -9,10 +9,14 @@ import entities.grid.CellContentType;
 import entities.grid.GridCoordinates;
 import entities.grid.GridUtil;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.util.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.*;
 
 public class SnakeEntity extends CellContent implements InputListener {
 
@@ -30,9 +34,10 @@ public class SnakeEntity extends CellContent implements InputListener {
 
     private Map<MOVEMENT_DIRECTION, List<Double>> movementDirectionMap;
     private Map<Integer, MOVEMENT_DIRECTION> keyToMovementDirectionMap;
-    private final float updateMovementSeconds = .15f;
+    private final float updateMovementSeconds = .35f;
     private float updateMovementTimerCounter = 0.0f;
-
+    private BufferedImage snakeHeadImage;
+    private BufferedImage snakeBodyImage;
     private List<ScreenCoordinates> snakeBody = null;
 
     public List<GridCoordinates> getSnakeBodyGridCoordinates() {
@@ -44,6 +49,9 @@ public class SnakeEntity extends CellContent implements InputListener {
     }
     public SnakeEntity() {
         super(CellContentType.SNAKE);
+
+        loadResources();
+
 
         movementDirectionMap = new HashMap<MOVEMENT_DIRECTION, List<Double>>() {{
             put(MOVEMENT_DIRECTION.NONE, new ArrayList<Double>(){{add(0.0);add(0.0);}});
@@ -86,6 +94,15 @@ public class SnakeEntity extends CellContent implements InputListener {
         updateMovementTimerCounter = 0;
     }
 
+    private void loadResources() {
+        File path = new File("resources/textures");
+        try {
+            snakeHeadImage = ImageIO.read(new File(path, "snake_head.png"));
+            snakeBodyImage = ImageIO.read(new File(path, "snake_body.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     public void finalised() {
         InputSystem inputSystem = Engine.get().getSystem(InputSystem.getSystemId());
         inputSystem.removeListenerFromAllEvents(this);
@@ -108,16 +125,14 @@ public class SnakeEntity extends CellContent implements InputListener {
     @Override
     protected void render(Graphics graphics) {
 
-        for(ScreenCoordinates snakeBodyPart : snakeBody) {
-            graphics.setColor(Color.black);
-            graphics.fillRect(snakeBodyPart.getFirst(),snakeBodyPart.getSecond(), grid.getCellSize().getFirst(), grid.getCellSize().getSecond());
-            graphics.drawRect(snakeBodyPart.getFirst(),snakeBodyPart.getSecond(), grid.getCellSize().getFirst(), grid.getCellSize().getSecond());
+        ScreenCoordinates snakeHeadScreenCoordinates = snakeBody.get(0);
+        graphics.drawImage(snakeHeadImage, snakeHeadScreenCoordinates.getFirst(),snakeHeadScreenCoordinates.getSecond(), grid.getCellSize().getFirst(), grid.getCellSize().getSecond(), null, null);
+
+        for(int i = 1; i < snakeBody.size(); ++i) {
+            graphics.drawImage(snakeBodyImage, snakeBody.get(i).getFirst(),snakeBody.get(i).getSecond(), grid.getCellSize().getFirst(), grid.getCellSize().getSecond(), null, null);
         }
 
-        List<Double> centerPos = getCenterPosition();
 
-        graphics.setColor(Color.CYAN);
-        graphics.drawRect(centerPos.get(0).intValue(),centerPos.get(1).intValue(), 5, 5);
         graphics.setColor(Color.BLACK);
 
     }

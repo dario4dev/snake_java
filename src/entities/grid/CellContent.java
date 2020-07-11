@@ -2,6 +2,7 @@ package entities.grid;
 
 import Common.ScreenCoordinates;
 import engine.GameObject;
+import engine.RenderingLayer;
 
 import java.util.Optional;
 
@@ -11,6 +12,7 @@ public abstract class CellContent extends GameObject {
     protected Grid grid = null;
 
     public CellContent(final CellContentType cellContentType) {
+        super(new RenderingLayer(1));
         this.cellContentType = cellContentType;
         grid = (Grid) GameObject.find(Grid.getGameObjectName());
     }

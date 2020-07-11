@@ -3,7 +3,11 @@ package entities.grid;
 import Common.ScreenCoordinates;
 import engine.GameObject;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Optional;
 
 public class Grid extends GameObject {
@@ -11,6 +15,7 @@ public class Grid extends GameObject {
     private Cell[] cells = null;
     private GridInfo gridInfo = null;
     private CellSize cellSize = null;
+    private BufferedImage gridBackground;
 
     public Grid(final GridInfo gridInfo) {
         this.setName(Grid.getGameObjectName());
@@ -24,6 +29,7 @@ public class Grid extends GameObject {
                 cells[linearIndex] = new Cell(new GridCoordinates(y,x), new ScreenCoordinates(x* cellSize.getFirst(), y* cellSize.getSecond()), cellSize);
             }
         }
+        loadResources();
     }
 
     public void init() {
@@ -32,6 +38,14 @@ public class Grid extends GameObject {
         }
     }
 
+    private void loadResources() {
+        File path = new File("resources/textures");
+        try {
+            gridBackground = ImageIO.read(new File(path, "grid_background.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     public GridInfo getGridInfo() {
         return gridInfo;
     }
@@ -69,5 +83,6 @@ public class Grid extends GameObject {
 
     @Override
     protected void render(Graphics graphics) {
+        graphics.drawImage(gridBackground, 0, 0, this.gridInfo.getWidth(), this.gridInfo.getHeight(), null, null);
     }
 }
