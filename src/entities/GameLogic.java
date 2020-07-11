@@ -21,18 +21,27 @@ public class GameLogic {
             @Override
             public void onStatusUpdated(SNAKE_STATUS status) {
                 if(status == SNAKE_STATUS.EATING) {
-                    foodSpawner.Spawn(snakeEntity.getPositionGridCoordinates(), grid.getGridInfo());
+                    spawnFood();
                 } else if(status == SNAKE_STATUS.DEAD) {
-                    Init();
+                    init();
                 }
             }
         });
 
-        Init();
+        init();
     }
 
-    private void Init() {
+    private void init() {
+        grid.init();
+        snakeEntity.init();
         snakeEntity.setPositionGridCoordinates(new GridCoordinates(grid.getGridInfo().getRows()/2,grid.getGridInfo().getColumns()/2));
-        foodSpawner.Spawn(snakeEntity.getPositionGridCoordinates(), grid.getGridInfo());
+        spawnFood();
+    }
+
+    private void spawnFood() {
+        final boolean canSpawn = foodSpawner.Spawn(snakeEntity.getSnakeBodyGridCoordinates(), grid.getGridInfo());
+        if(!canSpawn) {
+            init();
+        }
     }
 }

@@ -2,21 +2,19 @@ package entities.grid;
 
 import Common.ScreenCoordinates;
 import engine.GameObject;
+
 import java.awt.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
 public class Grid extends GameObject {
 
     private Cell[] cells = null;
     private GridInfo gridInfo = null;
     private CellSize cellSize = null;
-    private Map<CellContentType, Cell> cellContentTypeToCellMap;
 
     public Grid(final GridInfo gridInfo) {
         this.setName(Grid.getGameObjectName());
         this.gridInfo = gridInfo;
-        cellContentTypeToCellMap = new HashMap<CellContentType, Cell>();
 
         cells = new Cell[this.gridInfo.getRows() * this.gridInfo.getColumns()];
         cellSize = new CellSize(this.gridInfo.getWidth()/this.gridInfo.getColumns(), this.gridInfo.getHeight()/this.gridInfo.getRows());
@@ -25,6 +23,12 @@ public class Grid extends GameObject {
                 final int linearIndex = GridUtil.getLinearIndex(y,x,this.gridInfo.getRows(), this.gridInfo.getColumns());
                 cells[linearIndex] = new Cell(new GridCoordinates(y,x), new ScreenCoordinates(x* cellSize.getFirst(), y* cellSize.getSecond()), cellSize);
             }
+        }
+    }
+
+    public void init() {
+        for(Cell cell : cells) {
+            cell.setContentType(CellContentType.EMPTY);
         }
     }
 
@@ -45,29 +49,14 @@ public class Grid extends GameObject {
                 && gridCoordinates.getSecond() >= 0 && gridCoordinates.getSecond() < gridInfo.getRows();
     }
 
-    public void updateCellContent(final CellContentType cellContentType, final GridCoordinates gridCoordinates) {
-        cellContentTypeToCellMap.computeIfAbsent(cellContentType, (key) -> {
+    public void updateCellContent(final CellContentType cellContentType, final Optional<GridCoordinates> fromGridCoordinates, final GridCoordinates toGridCoordinates) {
+        fromGridCoordinates.ifPresent(gridCoordinates-> {
             final int linearIndex = GridUtil.getLinearIndex(gridCoordinates.getFirst(),gridCoordinates.getSecond(),this.gridInfo.getRows(), this.gridInfo.getColumns());
-            return cellContentTypeToCellMap.put(key, cells[linearIndex]);
+            cells[linearIndex].setContentType(CellContentType.EMPTY);
         });
 
-        cellContentTypeToCellMap.computeIfPresent(cellContentType, (key, value) -> {
-            //System.out.println("Start Updating content ");
-            //System.out.println("Current content type " + cellContentType + " to cell " + value);
-            value.setContentType(CellContentType.EMPTY);
-            //System.out.println("New content type " + cellContentType + " to cell " + value);
-            final int linearIndex = GridUtil.getLinearIndex(gridCoordinates.getFirst(),gridCoordinates.getSecond(),this.gridInfo.getRows(), this.gridInfo.getColumns());
-            value = cells[linearIndex];
-            //System.out.println("Current content type " + cellContentType + " to cell " + value);
-            value.setContentType(cellContentType);
-            //System.out.println("New content type " + cellContentType + " to cell " + value);
-            //System.out.println("End Updating content ");
-            return value;
-        });
-    }
-
-    public Cell getCellByContent(final CellContentType cellContentType) {
-        return cellContentTypeToCellMap.get(cellContentType);
+        final int linearIndex = GridUtil.getLinearIndex(toGridCoordinates.getFirst(),toGridCoordinates.getSecond(),this.gridInfo.getRows(), this.gridInfo.getColumns());
+        cells[linearIndex].setContentType(cellContentType);
     }
 
     public CellContentType getCellContentTypeAt(final GridCoordinates gridCoordinates) {

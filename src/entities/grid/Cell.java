@@ -31,6 +31,14 @@ public class Cell extends GameObject {
         this.contentType = contentType;
     }
 
+    public ScreenCoordinates getScreenCoordinates() {
+        return screenCoordinates;
+    }
+
+    public GridCoordinates getGridCoordinates() {
+        return gridCoordinates;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

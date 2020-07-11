@@ -24,10 +24,10 @@ public class SnakeGame extends Game {
 
     @Override
     public void initialiseComponents() {
-
-        gameLogic =   new GameLogic(new Grid(new GridInfo(15, 15, getScreenScreenWidth(), getScreenScreenHeight()))
+        GridInfo gridInfo = new GridInfo(15, 15, getScreenScreenWidth(), getScreenScreenHeight());
+        gameLogic =   new GameLogic(new Grid(gridInfo)
                     , new SnakeEntity()
-                    , new FoodSpawner());
+                    , new FoodSpawner(gridInfo));
     }
 
     @Override

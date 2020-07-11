@@ -3,9 +3,11 @@ package entities.grid;
 import Common.ScreenCoordinates;
 import engine.GameObject;
 
+import java.util.Optional;
+
 public abstract class CellContent extends GameObject {
 
-    final CellContentType cellContentType;
+    protected final CellContentType cellContentType;
     protected Grid grid = null;
 
     public CellContent(final CellContentType cellContentType) {
@@ -23,8 +25,10 @@ public abstract class CellContent extends GameObject {
         updatePosition(gridCoordinates, screenCoordinates);
     }
 
-    private void updatePosition(final GridCoordinates gridCoordinates,final ScreenCoordinates screenCoordinates ) {
-        grid.updateCellContent(cellContentType, gridCoordinates);
+    protected void updatePosition(final GridCoordinates gridCoordinates,final ScreenCoordinates screenCoordinates ) {
+        ScreenCoordinates currentPosition = new ScreenCoordinates(getTransform().getPositionX().intValue(), getTransform().getPositionY().intValue());
+        GridCoordinates currentGridPosition = GridUtil.getGridCoordinateFromScreenCoordinate(currentPosition, grid.getGridInfo());
+        grid.updateCellContent(cellContentType, Optional.ofNullable(currentGridPosition), gridCoordinates);
         getTransform().setPosition(screenCoordinates.getFirst(), screenCoordinates.getSecond());
     }
 

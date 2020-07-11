@@ -12,7 +12,7 @@ public class SnakeWindowProperties implements IGameWindowProperties {
 
     @Override
     public int getHeight() {
-        return 600;
+        return 640;
     }
 
     @Override

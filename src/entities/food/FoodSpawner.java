@@ -3,27 +3,40 @@ package entities.food;
 import entities.grid.GridCoordinates;
 import entities.grid.GridInfo;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class FoodSpawner {
 
     private Food foodEntity = null;
+    private final List<GridCoordinates> gridCoordinatesList;
 
-    public FoodSpawner() {
+    public FoodSpawner(final GridInfo gridInfo) {
+        gridCoordinatesList = new ArrayList<GridCoordinates>();
+        for(int y = 0; y < gridInfo.getRows(); ++y) {
+            for(int x = 0; x < gridInfo.getColumns(); ++x) {
+                gridCoordinatesList.add(new GridCoordinates(y,x));
+            }
+        }
         foodEntity = new Food();
     }
 
-    public void Spawn(final GridCoordinates snakePosition, final GridInfo gridInfo){
-        final int rowsFromOrigin = snakePosition.getFirst();
-        final int rowsToBorder =  gridInfo.getRows() - 1 - snakePosition.getFirst();
-        final int maxRowDistance = Math.max(rowsFromOrigin, rowsToBorder);
+    public boolean Spawn(final List<GridCoordinates> snakeBody, final GridInfo gridInfo){
 
-        final int columnsFromOrigin = snakePosition.getFirst();
-        final int columnsToBorder = gridInfo.getRows() - 1 -snakePosition.getSecond();
-        final int maxColumnDistance = Math.max(columnsFromOrigin, columnsToBorder);
+        List<GridCoordinates> candidateSpawnPositions = gridCoordinatesList.stream().filter(gridCoordinates -> {
+            return !snakeBody.contains(gridCoordinates);
+            }).collect(Collectors.toList());
+
+        if(candidateSpawnPositions.isEmpty()) {
+            return false;
+        }
 
         Random random = new Random();
-        GridCoordinates newFoodPosition = new GridCoordinates(random.nextInt(maxRowDistance ),random.nextInt(maxColumnDistance));
-        foodEntity.setPositionGridCoordinates(newFoodPosition);
+        final int newFoodPositionIndex = random.nextInt(candidateSpawnPositions.size());
+        System.out.println("Spanw position " + candidateSpawnPositions.get(newFoodPositionIndex).toString());
+        foodEntity.setPositionGridCoordinates(candidateSpawnPositions.get(newFoodPositionIndex));
+        return true;
     }
 }
