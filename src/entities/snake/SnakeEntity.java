@@ -33,7 +33,7 @@ public class SnakeEntity extends CellContent implements InputListener {
     private Map<MOVEMENT_DIRECTION, Double> movementToAngleDegreeMap;
     private Map<MOVEMENT_DIRECTION, List<Double>> movementDirectionMap;
     private Map<Integer, MOVEMENT_DIRECTION> keyToMovementDirectionMap;
-    private final float updateMovementSeconds = 0.40f;
+    private final float updateMovementSeconds = 0.25f;
     private float updateMovementTimerCounter = 0.0f;
     private BufferedImage snakeHeadImage;
     private List<ScreenCoordinates> snakeBody = null;
