@@ -35,7 +35,6 @@ public class FoodSpawner {
 
         Random random = new Random();
         final int newFoodPositionIndex = random.nextInt(candidateSpawnPositions.size());
-        System.out.println("Spanw position " + candidateSpawnPositions.get(newFoodPositionIndex).toString());
         foodEntity.setPositionGridCoordinates(candidateSpawnPositions.get(newFoodPositionIndex));
         return true;
     }

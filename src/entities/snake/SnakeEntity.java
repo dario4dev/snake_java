@@ -4,14 +4,12 @@ import Common.ScreenCoordinates;
 import engine.Engine;
 import engine.InputListener;
 import engine.systems.InputSystem;
-import entities.grid.CellContent;
-import entities.grid.CellContentType;
-import entities.grid.GridCoordinates;
-import entities.grid.GridUtil;
+import entities.grid.*;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -32,12 +30,12 @@ public class SnakeEntity extends CellContent implements InputListener {
     private MOVEMENT_DIRECTION nextMovementDirection;
     private SnakeStatus statusCallback;
 
+    private Map<MOVEMENT_DIRECTION, Double> movementToAngleDegreeMap;
     private Map<MOVEMENT_DIRECTION, List<Double>> movementDirectionMap;
     private Map<Integer, MOVEMENT_DIRECTION> keyToMovementDirectionMap;
-    private final float updateMovementSeconds = .35f;
+    private final float updateMovementSeconds = 0.40f;
     private float updateMovementTimerCounter = 0.0f;
     private BufferedImage snakeHeadImage;
-    private BufferedImage snakeBodyImage;
     private List<ScreenCoordinates> snakeBody = null;
 
     public List<GridCoordinates> getSnakeBodyGridCoordinates() {
@@ -59,6 +57,14 @@ public class SnakeEntity extends CellContent implements InputListener {
             put(MOVEMENT_DIRECTION.RIGHT, new ArrayList<Double>(){{add(1.0);add(0.0);}});
             put(MOVEMENT_DIRECTION.UP, new ArrayList<Double>(){{add(0.0);add(-1.0);}});
             put(MOVEMENT_DIRECTION.DOWN, new ArrayList<Double>(){{add(0.0);add(1.0);}});
+        }};
+
+        movementToAngleDegreeMap = new HashMap<MOVEMENT_DIRECTION, Double>() {{
+            put(MOVEMENT_DIRECTION.NONE, new Double(0.0));
+            put(MOVEMENT_DIRECTION.LEFT, new Double(0.0));
+            put(MOVEMENT_DIRECTION.RIGHT, new Double(180.0));
+            put(MOVEMENT_DIRECTION.UP, new Double(90.0));
+            put(MOVEMENT_DIRECTION.DOWN, new Double(270.0));
         }};
 
         keyToMovementDirectionMap = new HashMap<Integer, MOVEMENT_DIRECTION>() {{
@@ -98,7 +104,6 @@ public class SnakeEntity extends CellContent implements InputListener {
         File path = new File("resources/textures");
         try {
             snakeHeadImage = ImageIO.read(new File(path, "snake_head.png"));
-            snakeBodyImage = ImageIO.read(new File(path, "snake_body.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -110,7 +115,6 @@ public class SnakeEntity extends CellContent implements InputListener {
     }
     @Override
     protected void update(double deltaTime) {
-
         if(nextMovementDirection != MOVEMENT_DIRECTION.NONE) {
             updateStatus(SnakeStatus.SNAKE_STATUS.MOVING);
             updateMovementTimerCounter += deltaTime;
@@ -126,10 +130,13 @@ public class SnakeEntity extends CellContent implements InputListener {
     protected void render(Graphics graphics) {
 
         ScreenCoordinates snakeHeadScreenCoordinates = snakeBody.get(0);
-        graphics.drawImage(snakeHeadImage, snakeHeadScreenCoordinates.getFirst(),snakeHeadScreenCoordinates.getSecond(), grid.getCellSize().getFirst(), grid.getCellSize().getSecond(), null, null);
+        double rotationRequired = Math.toRadians (movementToAngleDegreeMap.get(currentMovementDirection));
+        AffineTransformOp affineTransformOp = GraphicsUtil.getAffineTransformRotationOperation(rotationRequired, snakeHeadImage.getWidth() / 2, snakeHeadImage.getHeight() / 2 );
+        graphics.drawImage(affineTransformOp.filter(snakeHeadImage, null), snakeHeadScreenCoordinates.getFirst(),snakeHeadScreenCoordinates.getSecond(), grid.getCellSize().getFirst(), grid.getCellSize().getSecond(), null, null);
 
+        graphics.setColor(Color.BLACK);
         for(int i = 1; i < snakeBody.size(); ++i) {
-            graphics.drawImage(snakeBodyImage, snakeBody.get(i).getFirst(),snakeBody.get(i).getSecond(), grid.getCellSize().getFirst(), grid.getCellSize().getSecond(), null, null);
+            graphics.fillRect(snakeBody.get(i).getFirst(),snakeBody.get(i).getSecond(), grid.getCellSize().getFirst(), grid.getCellSize().getSecond());
         }
 
 
